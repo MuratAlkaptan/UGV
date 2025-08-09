@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>diffbot_description</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="murat@todo.todo">murat</maintainer>
+  <license>TODO: License declaration</license>
+
+  <!-- build tool -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- build‑time dependencies -->
+  <build_depend>xacro</build_depend>
+  <build_depend>robot_state_publisher</build_depend>
+
+  <!-- run‑time (exec) dependencies -->
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <!-- test dependencies -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
+

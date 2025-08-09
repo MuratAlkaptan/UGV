@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diffbot">
+
+  <!-- Include Lidar Sensor Definition -->
+  <xacro:include filename="lidar.xacro"/>
+
+  <!-- Base Link -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.16 0.16 0.12"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.085"/>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Left Wheel -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="lwheel"/>
+    <origin xyz="0 0.115 0.046" rpy="1.5708 0 0"/>
+  </joint>
+  <link name="lwheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.008" radius="0.046"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Right Wheel -->
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rwheel"/>
+    <origin xyz="0 -0.115 0.046" rpy="-1.5708 0 0"/>
+  </joint>
+  <link name="rwheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.008" radius="0.046"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Front Caster Wheel (fixed) -->
+  <joint name="front_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="fwheel"/>
+    <origin xyz="0.13 0 0.02" rpy="0 0 0"/>
+  </joint>
+  <link name="fwheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.005" radius="0.020"/>
+      </geometry>
+      <origin rpy="1.578 0 0" xyz="0 0 0"/>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Include Lidar Link & Joint <xacro:laser /> -->
+  
+  <!-- Gazebo Plugins -->
+  <gazebo>
+    <plugin name="diff_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <namespace>/</namespace>
+      </ros>
+      <updateRate>50</updateRate>
+      <leftJoint>left_joint</leftJoint>
+      <rightJoint>right_joint</rightJoint>
+      <wheelSeparation>0.23</wheelSeparation>
+      <wheelDiameter>0.092</wheelDiameter>
+      <cmdVelTopic>/cmd_vel</cmdVelTopic>
+      <odomTopic>/odom</odomTopic>
+      <odomFrame>odom</odomFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
+      <publishTf>true</publishTf>
+    </plugin>
+  </gazebo>
+
+</robot>
+

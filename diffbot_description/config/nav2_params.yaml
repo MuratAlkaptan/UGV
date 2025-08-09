@@ -1,0 +1,45 @@
+# Nav2 default parameters, adapted for your diffbot
+amcl:
+  ros__parameters:
+    use_sim_time: true
+    odom_frame_id: odom
+    base_frame_id: base_link
+    scan_topic: /scan
+    # Localization tuning (adjust as needed):
+    alpha1: 0.2
+    alpha2: 0.2
+    alpha3: 0.2
+    alpha4: 0.2
+    alpha5: 0.2
+    kld_err: 0.05
+    kld_z: 0.99
+    max_particles: 200
+    min_particles: 50
+
+planner_server:
+  ros__parameters:
+    use_sim_time: true
+    expected_planner_frequency: 20.0
+    planner_plugin_ids: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+
+controller_server:
+  ros__parameters:
+    use_sim_time: true
+    expected_controller_frequency: 20.0
+    controller_plugin_ids: ["FollowPath"]
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller/RegulatedPurePursuitController"
+      lookahead_distance: 0.5
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: true
+    default_bt_xml_filename: "behavior_trees/navigate_w_replanning_and_recovery.xml"
+    plugin_lib_names: []
+
+recoveries_server:
+  ros__parameters:
+    use_sim_time: true
+

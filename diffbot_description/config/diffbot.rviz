@@ -1,0 +1,57 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Name: TF
+      Class: rviz_default_plugins/TF
+      Enabled: true
+      Show Names: false
+      Show Axes: true
+      Show Arrows: true
+
+    - Name: RobotModel
+      Class: rviz_default_plugins/RobotModel
+      Enabled: true
+      Description Topic: /robot_description
+      Visual Enabled: true
+      Collision Enabled: false
+      Update Interval: 0
+
+    - Name: LaserScan
+      Class: rviz_default_plugins/LaserScan
+      Enabled: true
+      Topic: /scan
+      Size (m): 0.01
+      Style: Points
+
+    - Name: Map
+      Class: rviz_default_plugins/Map
+      Enabled: true
+      Topic: /map
+      Color Scheme: map
+      Unreliable: false
+
+    - Name: Path
+      Class: rviz_default_plugins/Path
+      Enabled: true
+      Topic: /plan
+      Color: 255; 0; 0
+      Style: Lines
+
+  Global Options:
+    Fixed Frame: map
+    Frame Rate: 30
+    Background Color: 48; 48; 48
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/SetInitialPose
+    - Class: rviz_default_plugins/PublishPoint
+    - Class: nav2_rviz_plugins/GoalTool
+Window Geometry:
+  Width: 1200
+  Height: 800
+

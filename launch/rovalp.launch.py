@@ -1,66 +1,83 @@
-#!/usr/bin/env python3
-
-
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription, ExecuteProcess
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
 import os
 
-from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
-
-
 def generate_launch_description():
-  launch_file_dir = os.path.join(
-      get_package_share_directory('turtlebot3_gazebo'), 'launch')
-  pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
-  pkg_tb3_sim = get_package_share_directory('tb3_sim')
+    ld = LaunchDescription()
 
-  use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-  x_pose = LaunchConfiguration('x_pose', default='-2.0')
-  y_pose = LaunchConfiguration('y_pose', default='-0.5')
+    # === Paths ===
+    sam_pkg = get_package_share_directory('sam_bot_description')
+    slam_params = os.path.join(sam_pkg, 'config', 'mapper_params_online_async.yaml')
+    twist_mux_config = os.path.join(sam_pkg, 'config', 'twist_mux.yaml')
 
-  world = os.path.join(
-      get_package_share_directory('turtlebot3_gazebo'),
-      'worlds',
-      'turtlebot3_world.world'
-  )
+    # === SLAM Toolbox ===
+    slam_toolbox = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('slam_toolbox'), 'launch', 'online_async_launch.py')
+        ),
+        launch_arguments={
+            'slam_params_file': slam_params,
+            'use_sim_time': 'true'
+        }.items()
+    )
 
-  gzserver_cmd = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(
-          os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')
-      ),
-      launch_arguments={'world': world}.items()
-  )
+    # === Robot + RViz (display) ===
+    display = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(sam_pkg, 'launch', 'display.launch.py')
+        )
+    )
 
-  gzclient_cmd = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(
-          os.path.join(pkg_gazebo_ros, 'launch', 'gzclient.launch.py')
-      )
-  )
+    # === Nav2 Bringup ===
+    nav2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py')
+        ),
+        launch_arguments={'use_sim_time': 'true'}.items()
+    )
 
-  robot_state_publisher_cmd = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(
-          os.path.join(launch_file_dir, 'robot_state_publisher.launch.py')
-      ),
-      launch_arguments={'use_sim_time': use_sim_time}.items()
-  )
+    # === Joystick Teleop ===
+    joystick = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(sam_pkg, 'launch', 'joystick.launch.py')
+        )
+    )
 
-  spawn_turtlebot_cmd = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(
-          os.path.join(launch_file_dir, 'spawn_turtlebot3.launch.py')
-      ),
-      launch_arguments={
-          'x_pose': x_pose,
-          'y_pose': y_pose
-      }.items()
-  )
+    # === Rosbridge ===
+    rosbridge = IncludeLaunchDescription(
+        AnyLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('rosbridge_server'), 'launch', 'rosbridge_websocket_launch.xml')
+        )
+    )
 
-  ld = LaunchDescription()
+    # === Websocket FastAPI Bridge ===
+    websocket_bridge = ExecuteProcess(
+        cmd=['python3', os.path.join(sam_pkg, 'script', 'ros2_fastapi_websocket_bridge.py')],
+        output='screen'
+    )
 
-  ld.add_action(gzserver_cmd)
-  ld.add_action(gzclient_cmd)
-  ld.add_action(robot_state_publisher_cmd)
-  ld.add_action(spawn_turtlebot_cmd)
+    # === Twist Mux ===
+    twist_mux = Node(
+        package="twist_mux",
+        executable="twist_mux",
+        name="twist_mux",
+        output="screen",
+        parameters=["/home/sam/colcon_ws/src/sam_bot_description/config/twist_mux.yaml"],
+        remappings=[
+            ("cmd_vel_out", "diff_cont/cmd_vel_unstamped"),
+        ],
+    )
 
-  return ld
+    # Add everything to LaunchDescription
+    ld.add_action(slam_toolbox)
+    ld.add_action(display)
+    ld.add_action(nav2)
+    ld.add_action(joystick)
+    ld.add_action(rosbridge)
+    ld.add_action(websocket_bridge)
+    ld.add_action(twist_mux)
+
+    return ld

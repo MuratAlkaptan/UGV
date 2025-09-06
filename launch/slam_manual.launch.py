@@ -45,5 +45,16 @@ def generate_launch_description():
         name='teleop_node',
         parameters=[joy_params, {'use_sim_time': use_sim_time}],
         remappings=[('/cmd_vel', '/diff_cont/cmd_vel_unstamped')]
-    )
+    ),
+    Node(
+            package='rplidar_ros',
+            executable='rplidar_composition',
+            output='screen',
+            parameters=[{
+                'serial_port': '/dev/ttyUSB0',  # adjust
+                'frame_id': 'laser_link',
+                'angle_compensate': True,
+                'scan_mode': 'Standard'
+            }]
+        ),
     ])

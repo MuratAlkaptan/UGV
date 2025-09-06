@@ -23,7 +23,13 @@ diff_cont:
     wheel_radius: 0.06
     use_stamped_vel: false
     enable_odom_tf: true
-
+robot_hardware:
+      type: system
+      plugin: fake_components/GenericSystem
+      parameters:
+        joints:
+          - left_wheel_joint
+          - right_wheel_joint
 #diff_cont:
 #  ros__parameters:
 
